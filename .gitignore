@@ -1,4 +1,7 @@
 # compiled output
+
+mongo/
+
 /dist
 /node_modules
 /build
