@@ -1,6 +1,7 @@
 # compiled output
 
 mongo/
+.env
 
 /dist
 /node_modules
