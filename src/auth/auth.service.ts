@@ -1,17 +1,23 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { JwtService } from '@nestjs/jwt';
 
 import *as bcryptjs from 'bcryptjs';
 
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import { User } from './entities/user.entity';
+import { LogintDTO } from './dto/login.dto';
+import { JwtPayload } from './interface/jwt-payload';
+
 
 @Injectable()
 export class AuthService {
+  
 
   constructor(
+    private jwtService: JwtService,
     @InjectModel( User.name ) private userModel: Model<User>
   ){}
 
@@ -40,6 +46,35 @@ export class AuthService {
     }
   }
 
+  async login( loginDTO: LogintDTO){
+    
+    const { email, password } = loginDTO;
+
+    const user = await this.userModel.findOne( {email} )
+    if ( !user ) {
+      throw new UnauthorizedException('Credenciales no válidas - correo electrónico')
+    }
+
+    // Asegúrate de que user.password no sea undefined
+    if (!user.password) {
+      throw new UnauthorizedException('Credenciales no válidas - contraseña no definida');
+    }
+
+    // Compara la contraseña
+    if (!bcryptjs.compareSync(password, user.password)) {
+      throw new UnauthorizedException('Credenciales no válidas - contraseña incorrecta');
+    }
+
+    //Excluye la contraseña del objeto de usuario que devuelves
+    const { password:_, ...rest } = user.toJSON();
+
+    return {
+      user: rest,
+      token: this.getJwtToken({ id: user.id })
+    }
+  }
+
+
   findAll() {
     return `This action returns all auth`;
   }
@@ -54,5 +89,10 @@ export class AuthService {
 
   remove(id: number) {
     return `This action removes a #${id} auth`;
+  }
+
+  getJwtToken(payload: JwtPayload){
+    const token = this.jwtService.sign(payload)
+    return token
   }
 }
