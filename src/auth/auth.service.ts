@@ -5,10 +5,8 @@ import { JwtService } from '@nestjs/jwt';
 
 import *as bcryptjs from 'bcryptjs';
 
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { CreateUserDto, UpdateAuthDto, LogintDTO, RegisterUserDTO } from './dto';
 import { User } from './entities/user.entity';
-import { LogintDTO } from './dto/login.dto';
 import { JwtPayload } from './interface/jwt-payload';
 import { LoginResponse } from './interface/login-response';
 
@@ -41,11 +39,23 @@ export class AuthService {
 
     } catch (error) {
       if (error.code === 11000 ) {
-        throw new BadRequestException(`${ createUserDto.email } already exists!`)//ya exixte 
+        throw new BadRequestException(`${ createUserDto.email } ya exixte!`)//ya exixte 
       }
       throw new InternalServerErrorException('Something terrible happen!!!');//¡¡¡Algo terrible pasó!!!
     }
   }
+
+  async register( registerDTO: RegisterUserDTO ): Promise<LoginResponse>{
+
+    const user = await this.create( registerDTO )
+    console.log({ user })
+
+    return {
+      user: user,
+      token: this.getJwtToken({ id: user._id! })
+    }
+  }
+
 
   async login( loginDTO: LogintDTO): Promise<LoginResponse>{
     
@@ -76,8 +86,14 @@ export class AuthService {
   }
 
 
-  findAll() {
-    return `This action returns all auth`;
+  findAll(): Promise<User[]> {
+    return this.userModel.find();
+  }
+
+  async findUserById( id: string ){
+    const user = await this.userModel.findById( id );
+    const { password, ...rest } = user!.toJSON()
+    return rest
   }
 
   findOne(id: number) {

@@ -13,3 +13,5 @@ export class CreateUserDto {
     password: string;
 
 }
+
+//por lado del administrador

@@ -13,3 +13,5 @@ export class RegisterUserDTO {
     password: string;
 
 }
+
+//por el lado del usurio
