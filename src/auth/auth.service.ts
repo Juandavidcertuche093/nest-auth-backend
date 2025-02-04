@@ -10,6 +10,7 @@ import { UpdateAuthDto } from './dto/update-auth.dto';
 import { User } from './entities/user.entity';
 import { LogintDTO } from './dto/login.dto';
 import { JwtPayload } from './interface/jwt-payload';
+import { LoginResponse } from './interface/login-response';
 
 
 @Injectable()
@@ -46,7 +47,7 @@ export class AuthService {
     }
   }
 
-  async login( loginDTO: LogintDTO){
+  async login( loginDTO: LogintDTO): Promise<LoginResponse>{
     
     const { email, password } = loginDTO;
 

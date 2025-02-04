@@ -4,6 +4,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import { LogintDTO } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
+import { RegisterUserDTO } from './dto/register-user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -21,6 +22,12 @@ export class AuthController {
   @Post('/login')
   login( @Body() loginDTO: LogintDTO ){
     return this.authService.login( loginDTO )
+  } 
+
+
+  @Post('/register')
+  register( @Body() registerDTO: RegisterUserDTO ){
+    return this.authService.login( registerDTO )
   } 
 
   @Get()
